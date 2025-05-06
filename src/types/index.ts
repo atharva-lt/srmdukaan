@@ -65,3 +65,15 @@ export type OrderSummary = {
   shipment_status: string | null;
   tracking_number: string | null;
 };
+
+export type UserRole = "consumer" | "seller";
+
+export type OrderWithItems = {
+  summary: OrderSummary | null;
+  items: Array<{
+    id: string;
+    quantity: number;
+    price_per_unit: number;
+    product: Product;
+  }>;
+};

@@ -157,8 +157,7 @@ export async function fetchCustomerOrders(customerId: string) {
   try {
     const { data, error } = await supabase
       .from("order_summary")
-      .select("*")
-      .eq("customer_id", customerId);
+      .select("*");
 
     if (error) {
       throw error;
@@ -180,7 +179,7 @@ export async function registerCustomer(
   name: string,
   email: string,
   contactNumber: string
-): Promise<Customer | null> {
+) {
   try {
     // Check if customer exists with this email
     const { data: existingCustomer } = await supabase
@@ -219,5 +218,92 @@ export async function registerCustomer(
       variant: "destructive",
     });
     return null;
+  }
+}
+
+// Order management functions for sellers
+export async function updateOrderStatus(orderId: string, status: string) {
+  try {
+    const { error } = await supabase
+      .from("orders")
+      .update({ status })
+      .eq("id", orderId);
+      
+    if (error) throw error;
+    
+    return true;
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    toast({
+      title: "Error", 
+      description: "Failed to update order status",
+      variant: "destructive",
+    });
+    return false;
+  }
+}
+
+export async function fetchAllOrders() {
+  try {
+    const { data, error } = await supabase
+      .from("order_summary")
+      .select("*")
+      .order("order_date", { ascending: false });
+    
+    if (error) throw error;
+    
+    return data;
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    toast({
+      title: "Error",
+      description: "Failed to fetch orders",
+      variant: "destructive",
+    });
+    return [];
+  }
+}
+
+export async function fetchOrderDetails(orderId: string) {
+  try {
+    // Fetch order items
+    const { data: orderItems, error: itemsError } = await supabase
+      .from("order_item")
+      .select(`
+        id,
+        quantity,
+        price_per_unit,
+        product:product_id (
+          id,
+          name,
+          price,
+          image_url
+        )
+      `)
+      .eq("order_id", orderId);
+    
+    if (itemsError) throw itemsError;
+    
+    // Fetch order summary
+    const { data: orderSummary, error: summaryError } = await supabase
+      .from("order_summary")
+      .select("*")
+      .eq("order_id", orderId)
+      .single();
+      
+    if (summaryError) throw summaryError;
+    
+    return {
+      summary: orderSummary,
+      items: orderItems,
+    };
+  } catch (error) {
+    console.error(`Error fetching order details for ${orderId}:`, error);
+    toast({
+      title: "Error",
+      description: "Failed to fetch order details",
+      variant: "destructive",
+    });
+    return { summary: null, items: [] };
   }
 }

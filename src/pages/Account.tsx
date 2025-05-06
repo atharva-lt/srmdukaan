@@ -1,15 +1,18 @@
 
 import React, { useState, useEffect } from "react";
 import { useCustomer } from "@/context/CustomerContext";
+import { useRole } from "@/context/RoleContext";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { OrderSummary } from "@/types";
+import { formatDate } from "@/lib/utils";
 
 export default function Account() {
   const { customer, isAuthenticated } = useCustomer();
+  const { userRole } = useRole();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,9 +49,24 @@ export default function Account() {
     return null;
   }
 
+  const getStatusBadgeClasses = (status: string | null) => {
+    switch (status) {
+      case "approved":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "delivered":
+        return "bg-blue-100 text-blue-800";
+      case "shipped":
+        return "bg-indigo-100 text-indigo-800";
+      default:
+        return "bg-yellow-100 text-yellow-800";
+    }
+  };
+
   return (
     <div className="container p-8 mx-auto">
-      <h1 className="text-3xl font-bold mb-8">My Account</h1>
+      <h1 className="mb-8 text-3xl font-bold">My Account</h1>
       
       <div className="grid gap-8 md:grid-cols-3">
         <div>
@@ -68,6 +86,10 @@ export default function Account() {
               <div>
                 <p className="text-sm text-muted-foreground">Contact Number</p>
                 <p className="font-medium">{customer?.contact_number || "N/A"}</p>
+              </div>
+              <div className="pt-2 mt-4 border-t">
+                <p className="text-sm text-muted-foreground">Current Role</p>
+                <p className="font-medium capitalize">{userRole}</p>
               </div>
             </CardContent>
           </Card>
@@ -107,7 +129,7 @@ export default function Account() {
                         </TableCell>
                         <TableCell>
                           {order.order_date
-                            ? new Date(order.order_date).toLocaleDateString()
+                            ? formatDate(new Date(order.order_date))
                             : "N/A"}
                         </TableCell>
                         <TableCell>
@@ -115,11 +137,7 @@ export default function Account() {
                         </TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 text-xs rounded-full ${
-                            order.order_status === "delivered"
-                              ? "bg-green-100 text-green-800"
-                              : order.order_status === "shipped"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-yellow-100 text-yellow-800"
+                            getStatusBadgeClasses(order.order_status)
                           }`}>
                             {order.order_status || "Processing"}
                           </span>
