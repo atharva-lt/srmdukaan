@@ -6,7 +6,9 @@ import { toast } from "@/components/ui/use-toast";
 // Product related functions
 export async function fetchProducts() {
   try {
-    const { data, error } = await supabase.from("product").select("*");
+    const { data, error } = await supabase
+      .from("product")
+      .select("*");
     
     if (error) {
       throw error;
@@ -98,6 +100,7 @@ export async function createOrder(
       .single();
 
     if (orderError) throw orderError;
+    if (!orderData) throw new Error("Failed to create order");
 
     // Create order items
     const orderItemsToInsert = cartItems.map((item) => ({

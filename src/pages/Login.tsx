@@ -73,7 +73,7 @@ export default function Login() {
       <div className="max-w-md mx-auto">
         <Card className="border shadow-lg">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center font-bold">Welcome Back</CardTitle>
+            <CardTitle className="text-2xl text-center font-bold">Welcome to QuickOrderVerse</CardTitle>
             <p className="text-center text-muted-foreground">Enter your details to continue</p>
           </CardHeader>
           <form onSubmit={handleSubmit}>
