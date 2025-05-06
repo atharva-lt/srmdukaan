@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useCustomer } from "@/context/CustomerContext";
 import { useRole } from "@/context/RoleContext";
@@ -16,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
 import { formatDate } from "@/lib/utils";
-import { Check, X, RefreshCw, ChevronDown, ChevronUp, Package, Store } from "lucide-react";
+import { Check, X, RefreshCw, ChevronDown, ChevronUp, Package, Store as StoreIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -30,7 +29,7 @@ interface OrderItemWithProduct {
   id: string;
   quantity: number;
   price_per_unit: number;
-  product: Product;
+  product: Product;  // This now uses the full Product type from types/index.ts
 }
 
 interface TypesafeOrderWithItems {
@@ -127,23 +126,7 @@ export default function SellerDashboard() {
 
     try {
       const details = await fetchOrderDetails(orderId);
-      // Ensure all product properties are properly handled
-      const typesafeDetails: TypesafeOrderWithItems = {
-        summary: details.summary,
-        items: details.items.map(item => ({
-          ...item,
-          product: {
-            id: item.product.id,
-            name: item.product.name,
-            price: item.product.price,
-            image_url: item.product.image_url,
-            description: item.product.description || null,
-            category: item.product.category || null,
-            inventory_count: item.product.inventory_count || null
-          }
-        }))
-      };
-      setOrderDetails(typesafeDetails);
+      setOrderDetails(details);
     } catch (error) {
       console.error("Error fetching order details:", error);
       toast({
@@ -161,7 +144,7 @@ export default function SellerDashboard() {
       <Card className="mb-6 border-srm-100">
         <CardHeader className="bg-gradient-to-r from-srm-600 to-srm-400 text-white">
           <CardTitle className="text-3xl font-bold flex items-center gap-2">
-            <Store className="w-6 h-6" />
+            <StoreIcon className="w-6 h-6" />
             Seller Dashboard
           </CardTitle>
           <CardDescription className="text-white/80">

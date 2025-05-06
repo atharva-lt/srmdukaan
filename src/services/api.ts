@@ -283,7 +283,7 @@ export async function fetchAllOrders() {
 
 export async function fetchOrderDetails(orderId: string) {
   try {
-    // Fetch order items
+    // Fetch order items with complete product information
     const { data: orderItems, error: itemsError } = await supabase
       .from("order_item")
       .select(`
@@ -294,7 +294,10 @@ export async function fetchOrderDetails(orderId: string) {
           id,
           name,
           price,
-          image_url
+          image_url,
+          description,
+          category,
+          inventory_count
         )
       `)
       .eq("order_id", orderId);
