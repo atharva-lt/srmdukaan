@@ -13,6 +13,7 @@ import Checkout from "./pages/Checkout";
 import ThankYou from "./pages/ThankYou";
 import Account from "./pages/Account";
 import SellerDashboard from "./pages/SellerDashboard";
+import SellerProductManagement from "./pages/SellerProductManagement";
 import Navbar from "./components/Navbar";
 import { CartProvider } from "./context/CartContext";
 import { CustomerProvider } from "./context/CustomerContext";
@@ -41,6 +42,7 @@ const App = () => (
                     <Route path="/thankyou/:orderId" element={<ThankYou />} />
                     <Route path="/account" element={<Account />} />
                     <Route path="/seller" element={<SellerDashboard />} />
+                    <Route path="/seller/products" element={<SellerProductManagement />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>

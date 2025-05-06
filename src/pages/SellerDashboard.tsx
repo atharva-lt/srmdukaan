@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { useCustomer } from "@/context/CustomerContext";
 import { useRole } from "@/context/RoleContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { fetchAllOrders, updateOrderStatus, fetchOrderDetails } from "@/services/api";
 import { OrderSummary, OrderWithItems, Product } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 
 // Define a helper interface to ensure proper typing for order details
@@ -153,7 +155,58 @@ export default function SellerDashboard() {
         </CardHeader>
       </Card>
       
-      <Card className="border-srm-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        {/* Dashboard Quick Links */}
+        <Card className="border-srm-100 hover:border-srm-300 transition-colors">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-semibold text-srm-700">Products</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-muted-foreground mb-4">Manage your product inventory, add new products, and update stock levels.</p>
+          </CardContent>
+          <CardFooter>
+            <Button asChild className="w-full bg-srm-500 hover:bg-srm-600">
+              <Link to="/seller/products">
+                Manage Products
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
+        
+        <Card className="border-srm-100 hover:border-srm-300 transition-colors">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-semibold text-srm-700">Orders</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-muted-foreground mb-4">Review and process customer orders, update order status and shipment tracking.</p>
+          </CardContent>
+          <CardFooter>
+            <Button 
+              className="w-full" 
+              variant="outline"
+              onClick={() => document.getElementById('orders-section')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              View Orders
+            </Button>
+          </CardFooter>
+        </Card>
+        
+        <Card className="border-srm-100 hover:border-srm-300 transition-colors">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-semibold text-srm-700">Analytics</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-muted-foreground mb-4">View sales performance, customer insights, and inventory metrics.</p>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full" variant="outline" disabled>
+              Coming Soon
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+      
+      <Card className="border-srm-100" id="orders-section">
         <CardHeader className="pb-3 bg-srm-50">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-semibold text-srm-700">Orders</CardTitle>

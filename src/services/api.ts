@@ -73,6 +73,149 @@ export async function fetchProductsByCategory(category: string) {
   }
 }
 
+// New Product Management Functions
+export async function createProduct(product: Omit<Product, 'id'>) {
+  try {
+    const { data, error } = await supabase
+      .from("product")
+      .insert([product])
+      .select()
+      .single();
+      
+    if (error) throw error;
+    
+    toast({
+      title: "Success",
+      description: "Product created successfully",
+    });
+    
+    return data as Product;
+  } catch (error) {
+    console.error("Error creating product:", error);
+    toast({
+      title: "Error",
+      description: "Failed to create product",
+      variant: "destructive",
+    });
+    return null;
+  }
+}
+
+export async function updateProduct(id: string, updates: Partial<Product>) {
+  try {
+    const { data, error } = await supabase
+      .from("product")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+      
+    if (error) throw error;
+    
+    toast({
+      title: "Success",
+      description: "Product updated successfully",
+    });
+    
+    return data as Product;
+  } catch (error) {
+    console.error(`Error updating product ${id}:`, error);
+    toast({
+      title: "Error",
+      description: "Failed to update product",
+      variant: "destructive",
+    });
+    return null;
+  }
+}
+
+export async function deleteProduct(id: string) {
+  try {
+    const { error } = await supabase
+      .from("product")
+      .delete()
+      .eq("id", id);
+      
+    if (error) throw error;
+    
+    toast({
+      title: "Success",
+      description: "Product deleted successfully",
+    });
+    
+    return true;
+  } catch (error) {
+    console.error(`Error deleting product ${id}:`, error);
+    toast({
+      title: "Error",
+      description: "Failed to delete product",
+      variant: "destructive",
+    });
+    return false;
+  }
+}
+
+export async function bulkUpdateProducts(ids: string[], updates: Partial<Product>) {
+  try {
+    // Supabase doesn't support direct bulk updates, so we need to use a transaction
+    const promises = ids.map(id => 
+      supabase
+        .from("product")
+        .update(updates)
+        .eq("id", id)
+    );
+    
+    const results = await Promise.all(promises);
+    const errors = results.filter(r => r.error).map(r => r.error);
+    
+    if (errors.length > 0) {
+      throw new Error(`${errors.length} updates failed`);
+    }
+    
+    toast({
+      title: "Success",
+      description: `${ids.length} products updated successfully`,
+    });
+    
+    return true;
+  } catch (error) {
+    console.error("Error bulk updating products:", error);
+    toast({
+      title: "Error",
+      description: "Failed to update products",
+      variant: "destructive",
+    });
+    return false;
+  }
+}
+
+export async function searchProducts(query: string, category?: string) {
+  try {
+    let queryBuilder = supabase
+      .from("product")
+      .select("*")
+      .or(`name.ilike.%${query}%, description.ilike.%${query}%`);
+      
+    if (category) {
+      queryBuilder = queryBuilder.eq("category", category);
+    }
+    
+    const { data, error } = await queryBuilder;
+    
+    if (error) throw error;
+    
+    return data as Product[];
+  } catch (error) {
+    console.error("Error searching products:", error);
+    toast({
+      title: "Error",
+      description: "Failed to search products",
+      variant: "destructive",
+    });
+    return [];
+  }
+}
+
 // Order related functions
 export async function createOrder(
   customer_id: string,
