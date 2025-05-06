@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useCustomer } from "@/context/CustomerContext";
 import { useRole } from "@/context/RoleContext";
@@ -155,8 +154,8 @@ export default function SellerDashboard() {
         </CardHeader>
       </Card>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        {/* Dashboard Quick Links */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Dashboard Quick Links - Removed Analytics card */}
         <Card className="border-srm-100 hover:border-srm-300 transition-colors">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-semibold text-srm-700">Products</CardTitle>
@@ -187,20 +186,6 @@ export default function SellerDashboard() {
               onClick={() => document.getElementById('orders-section')?.scrollIntoView({ behavior: 'smooth' })}
             >
               View Orders
-            </Button>
-          </CardFooter>
-        </Card>
-        
-        <Card className="border-srm-100 hover:border-srm-300 transition-colors">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold text-srm-700">Analytics</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="text-muted-foreground mb-4">View sales performance, customer insights, and inventory metrics.</p>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full" variant="outline" disabled>
-              Coming Soon
             </Button>
           </CardFooter>
         </Card>
