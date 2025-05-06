@@ -2,7 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useCustomer } from "@/context/CustomerContext";
 import { useRole } from "@/context/RoleContext";
 import { useNavigate, Link } from "react-router-dom";
-import { fetchAllOrders, updateOrderStatus, fetchOrderDetails, fetchAllCustomers } from "@/services/api";
+import { 
+  fetchAllOrders, 
+  updateOrderStatus, 
+  fetchOrderDetails, 
+  fetchAllCustomers,
+  createCustomer,
+  updateCustomer,
+  deleteCustomer 
+} from "@/services/api";
 import { OrderSummary, OrderWithItems, Product, Customer } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +23,19 @@ import {
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
 import { formatDate } from "@/lib/utils";
-import { Check, X, RefreshCw, ChevronDown, ChevronUp, Package, Store as StoreIcon, Users } from "lucide-react";
+import { 
+  Check, 
+  X, 
+  RefreshCw, 
+  ChevronDown, 
+  ChevronUp, 
+  Package, 
+  Store as StoreIcon, 
+  Users, 
+  PencilIcon, 
+  TrashIcon,
+  UserPlusIcon
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -29,6 +49,8 @@ import {
   AvatarFallback,
 } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { CustomerDialog } from "@/components/CustomerDialog";
+import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 
 // Define a helper interface to ensure proper typing for order details
 interface OrderItemWithProduct {
@@ -55,6 +77,12 @@ export default function SellerDashboard() {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loadingCustomers, setLoadingCustomers] = useState(false);
+  
+  // Customer management state
+  const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
+  const [isEditCustomerOpen, setIsEditCustomerOpen] = useState(false);
+  const [isDeleteCustomerOpen, setIsDeleteCustomerOpen] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | undefined>(undefined);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -174,6 +202,42 @@ export default function SellerDashboard() {
       .slice(0, 2);
   };
 
+  // Customer management functions
+  const handleAddCustomer = async (customerData: Omit<Customer, 'id' | 'created_at'>) => {
+    const newCustomer = await createCustomer(customerData);
+    if (newCustomer) {
+      loadCustomers(); // Refresh the customer list
+    }
+  };
+
+  const handleEditCustomer = async (customerData: Omit<Customer, 'id' | 'created_at'>) => {
+    if (!selectedCustomer) return;
+    
+    const updatedCustomer = await updateCustomer(selectedCustomer.id, customerData);
+    if (updatedCustomer) {
+      loadCustomers(); // Refresh the customer list
+    }
+  };
+
+  const handleDeleteCustomer = async () => {
+    if (!selectedCustomer) return;
+    
+    const success = await deleteCustomer(selectedCustomer.id);
+    if (success) {
+      loadCustomers(); // Refresh the customer list
+    }
+  };
+
+  const openEditCustomerDialog = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsEditCustomerOpen(true);
+  };
+
+  const openDeleteCustomerDialog = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsDeleteCustomerOpen(true);
+  };
+
   return (
     <div className="container p-8 mx-auto">
       <Card className="mb-6 border-srm-100">
@@ -189,7 +253,7 @@ export default function SellerDashboard() {
       </Card>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {/* Dashboard Quick Links - Removed Analytics card */}
+        {/* Dashboard Quick Links */}
         <Card className="border-srm-100 hover:border-srm-300 transition-colors">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-semibold text-srm-700">Products</CardTitle>
@@ -233,15 +297,24 @@ export default function SellerDashboard() {
               <Users className="h-5 w-5 text-srm-500" />
               Customers
             </CardTitle>
-            <Button 
-              variant="outline" 
-              onClick={loadCustomers} 
-              disabled={loadingCustomers}
-              className="flex items-center gap-2 border-srm-200 text-srm-600"
-            >
-              <RefreshCw className={`w-4 h-4 ${loadingCustomers ? "animate-spin" : ""}`} />
-              {loadingCustomers ? "Loading..." : "Refresh"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                onClick={loadCustomers} 
+                disabled={loadingCustomers}
+                className="flex items-center gap-2 border-srm-200 text-srm-600"
+              >
+                <RefreshCw className={`w-4 h-4 ${loadingCustomers ? "animate-spin" : ""}`} />
+                {loadingCustomers ? "Loading..." : "Refresh"}
+              </Button>
+              <Button 
+                onClick={() => setIsAddCustomerOpen(true)}
+                className="flex items-center gap-2 bg-srm-500 hover:bg-srm-600"
+              >
+                <UserPlusIcon className="w-4 h-4" />
+                Add Customer
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -254,12 +327,13 @@ export default function SellerDashboard() {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Contact Number</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loadingCustomers ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8">
+                      <TableCell colSpan={5} className="text-center py-8">
                         <div className="flex items-center justify-center gap-2">
                           <RefreshCw className="w-5 h-5 animate-spin text-srm-500" />
                           <span>Loading customers...</span>
@@ -268,7 +342,7 @@ export default function SellerDashboard() {
                     </TableRow>
                   ) : customers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8">
+                      <TableCell colSpan={5} className="text-center py-8">
                         <div className="flex flex-col items-center justify-center gap-2">
                           <Users className="w-8 h-8 text-muted-foreground" />
                           <span>No customers found</span>
@@ -288,6 +362,26 @@ export default function SellerDashboard() {
                         <TableCell className="font-medium">{customer.name}</TableCell>
                         <TableCell>{customer.email || "—"}</TableCell>
                         <TableCell>{customer.contact_number || "—"}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEditCustomerDialog(customer)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <PencilIcon className="h-4 w-4 text-srm-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openDeleteCustomerDialog(customer)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <TrashIcon className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))
                   )}
@@ -298,6 +392,7 @@ export default function SellerDashboard() {
         </CardContent>
       </Card>
       
+      {/* Orders Section */}
       <Card className="border-srm-100" id="orders-section">
         <CardHeader className="pb-3 bg-srm-50">
           <div className="flex items-center justify-between">
@@ -467,6 +562,30 @@ export default function SellerDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Customer Dialog Components */}
+      <CustomerDialog
+        open={isAddCustomerOpen}
+        onOpenChange={setIsAddCustomerOpen}
+        onSave={handleAddCustomer}
+        mode="add"
+      />
+
+      <CustomerDialog
+        open={isEditCustomerOpen}
+        onOpenChange={setIsEditCustomerOpen}
+        onSave={handleEditCustomer}
+        customer={selectedCustomer}
+        mode="edit"
+      />
+
+      <DeleteConfirmationDialog
+        open={isDeleteCustomerOpen}
+        onOpenChange={setIsDeleteCustomerOpen}
+        onConfirm={handleDeleteCustomer}
+        title="Delete Customer"
+        description={`Are you sure you want to delete ${selectedCustomer?.name}? This action cannot be undone.`}
+      />
     </div>
   );
 }

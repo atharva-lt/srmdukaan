@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Product, Customer, Order, OrderItem, CartItem } from "@/types";
 import { toast } from "@/components/ui/use-toast";
@@ -244,6 +245,87 @@ export async function fetchAllCustomers() {
       variant: "destructive",
     });
     return [];
+  }
+}
+
+export async function createCustomer(customer: Omit<Customer, 'id' | 'created_at'>) {
+  try {
+    const { data, error } = await supabase
+      .from("customer")
+      .insert([customer])
+      .select()
+      .single();
+      
+    if (error) throw error;
+    
+    toast({
+      title: "Success",
+      description: "Customer added successfully",
+    });
+    
+    return data as Customer;
+  } catch (error) {
+    console.error("Error adding customer:", error);
+    toast({
+      title: "Error",
+      description: "Failed to add customer",
+      variant: "destructive",
+    });
+    return null;
+  }
+}
+
+export async function updateCustomer(id: string, updates: Partial<Customer>) {
+  try {
+    const { data, error } = await supabase
+      .from("customer")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+      
+    if (error) throw error;
+    
+    toast({
+      title: "Success",
+      description: "Customer updated successfully",
+    });
+    
+    return data as Customer;
+  } catch (error) {
+    console.error(`Error updating customer ${id}:`, error);
+    toast({
+      title: "Error",
+      description: "Failed to update customer",
+      variant: "destructive",
+    });
+    return null;
+  }
+}
+
+export async function deleteCustomer(id: string) {
+  try {
+    const { error } = await supabase
+      .from("customer")
+      .delete()
+      .eq("id", id);
+      
+    if (error) throw error;
+    
+    toast({
+      title: "Success",
+      description: "Customer deleted successfully",
+    });
+    
+    return true;
+  } catch (error) {
+    console.error(`Error deleting customer ${id}:`, error);
+    toast({
+      title: "Error",
+      description: "Failed to delete customer",
+      variant: "destructive",
+    });
+    return false;
   }
 }
 
