@@ -74,15 +74,15 @@ export default function Account() {
 
   return (
     <div className="container p-8 mx-auto">
-      <h1 className="mb-8 text-3xl font-bold">My Account</h1>
+      <h1 className="mb-8 text-3xl font-bold text-srm-700">My Account</h1>
       
       <div className="grid gap-8 md:grid-cols-3">
         <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Information</CardTitle>
+          <Card className="border-srm-100">
+            <CardHeader className="bg-srm-50">
+              <CardTitle className="text-srm-700">Account Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 pt-6">
               <div>
                 <p className="text-sm text-muted-foreground">Name</p>
                 <p className="font-medium">{customer?.name}</p>
@@ -95,7 +95,7 @@ export default function Account() {
                 <p className="text-sm text-muted-foreground">Contact Number</p>
                 <p className="font-medium">{customer?.contact_number || "N/A"}</p>
               </div>
-              <div className="pt-2 mt-4 border-t">
+              <div className="pt-2 mt-4 border-t border-srm-50">
                 <p className="text-sm text-muted-foreground">Current Role</p>
                 <p className="font-medium capitalize">{userRole}</p>
               </div>
@@ -104,9 +104,9 @@ export default function Account() {
         </div>
         
         <div className="md:col-span-2">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Order History</CardTitle>
+          <Card className="h-full border-srm-100">
+            <CardHeader className="pb-3 bg-srm-50">
+              <CardTitle className="text-xl font-semibold text-srm-700">Order History</CardTitle>
               <CardDescription>
                 View the status of recent orders and track their progress
               </CardDescription>
@@ -115,13 +115,13 @@ export default function Account() {
               {loading ? (
                 <div className="space-y-2">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="h-12 bg-gray-100 animate-pulse rounded-md" />
+                    <div key={i} className="h-12 bg-srm-50 animate-pulse rounded-md" />
                   ))}
                 </div>
               ) : orders.length > 0 ? (
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className="bg-srm-50">
                       <TableHead>Order ID</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead>Amount</TableHead>
@@ -131,8 +131,8 @@ export default function Account() {
                   </TableHeader>
                   <TableBody>
                     {orders.map((order) => (
-                      <TableRow key={order.order_id}>
-                        <TableCell className="font-medium">
+                      <TableRow key={order.order_id} className="hover:bg-srm-50/50">
+                        <TableCell className="font-medium text-srm-700">
                           {(order.order_id || "").slice(0, 8)}...
                         </TableCell>
                         <TableCell>
@@ -152,7 +152,7 @@ export default function Account() {
                         </TableCell>
                         <TableCell>
                           {order.tracking_number ? (
-                            <span className="text-primary">
+                            <span className="text-srm-500">
                               {order.tracking_number}
                             </span>
                           ) : (
@@ -169,8 +169,8 @@ export default function Account() {
                 </div>
               )}
             </CardContent>
-            <CardFooter>
-              <Button variant="outline" onClick={() => navigate("/")}>
+            <CardFooter className="bg-srm-50/50">
+              <Button variant="outline" onClick={() => navigate("/")} className="border-srm-200 text-srm-600 hover:bg-srm-50">
                 Continue Shopping
               </Button>
             </CardFooter>

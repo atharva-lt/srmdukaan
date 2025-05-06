@@ -4,7 +4,7 @@ import { useCustomer } from "@/context/CustomerContext";
 import { useRole } from "@/context/RoleContext";
 import { useNavigate } from "react-router-dom";
 import { fetchAllOrders, updateOrderStatus, fetchOrderDetails } from "@/services/api";
-import { OrderSummary, OrderWithItems } from "@/types";
+import { OrderSummary, OrderWithItems, Product } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -25,13 +25,26 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+// Define a helper interface to ensure proper typing for order details
+interface OrderItemWithProduct {
+  id: string;
+  quantity: number;
+  price_per_unit: number;
+  product: Product;
+}
+
+interface TypesafeOrderWithItems {
+  summary: OrderSummary | null;
+  items: OrderItemWithProduct[];
+}
+
 export default function SellerDashboard() {
   const { isAuthenticated } = useCustomer();
   const { userRole } = useRole();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
-  const [orderDetails, setOrderDetails] = useState<OrderWithItems | null>(null);
+  const [orderDetails, setOrderDetails] = useState<TypesafeOrderWithItems | null>(null);
   const [loading, setLoading] = useState(true);
   const [processingOrder, setProcessingOrder] = useState<string | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
@@ -114,7 +127,23 @@ export default function SellerDashboard() {
 
     try {
       const details = await fetchOrderDetails(orderId);
-      setOrderDetails(details);
+      // Ensure all product properties are properly handled
+      const typesafeDetails: TypesafeOrderWithItems = {
+        summary: details.summary,
+        items: details.items.map(item => ({
+          ...item,
+          product: {
+            id: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            image_url: item.product.image_url,
+            description: item.product.description || null,
+            category: item.product.category || null,
+            inventory_count: item.product.inventory_count || null
+          }
+        }))
+      };
+      setOrderDetails(typesafeDetails);
     } catch (error) {
       console.error("Error fetching order details:", error);
       toast({
@@ -129,27 +158,27 @@ export default function SellerDashboard() {
 
   return (
     <div className="container p-8 mx-auto">
-      <Card className="mb-6">
-        <CardHeader>
+      <Card className="mb-6 border-srm-100">
+        <CardHeader className="bg-gradient-to-r from-srm-600 to-srm-400 text-white">
           <CardTitle className="text-3xl font-bold flex items-center gap-2">
             <Store className="w-6 h-6" />
             Seller Dashboard
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-white/80">
             Manage customer orders and inventory
           </CardDescription>
         </CardHeader>
       </Card>
       
-      <Card>
-        <CardHeader className="pb-3">
+      <Card className="border-srm-100">
+        <CardHeader className="pb-3 bg-srm-50">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-semibold">Orders</CardTitle>
+            <CardTitle className="text-xl font-semibold text-srm-700">Orders</CardTitle>
             <Button 
               variant="outline" 
               onClick={loadOrders} 
               disabled={loading}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-srm-200 text-srm-600"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
               {loading ? "Loading..." : "Refresh"}
@@ -157,10 +186,10 @@ export default function SellerDashboard() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="rounded-lg border border-srm-100">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-srm-50">
                   <TableHead className="w-10"></TableHead>
                   <TableHead>Order ID</TableHead>
                   <TableHead>Customer</TableHead>
@@ -175,7 +204,7 @@ export default function SellerDashboard() {
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8">
                       <div className="flex items-center justify-center gap-2">
-                        <RefreshCw className="w-5 h-5 animate-spin text-primary" />
+                        <RefreshCw className="w-5 h-5 animate-spin text-srm-500" />
                         <span>Loading orders...</span>
                       </div>
                     </TableCell>
@@ -192,7 +221,7 @@ export default function SellerDashboard() {
                 ) : (
                   orders.map((order) => (
                     <React.Fragment key={order.order_id}>
-                      <TableRow className="group hover:bg-muted/50">
+                      <TableRow className="group hover:bg-srm-50/50">
                         <TableCell>
                           <Button
                             variant="ghost"
@@ -201,13 +230,13 @@ export default function SellerDashboard() {
                             onClick={() => toggleOrderDetails(order.order_id)}
                           >
                             {expandedOrder === order.order_id ? (
-                              <ChevronUp className="h-4 w-4" />
+                              <ChevronUp className="h-4 w-4 text-srm-600" />
                             ) : (
-                              <ChevronDown className="h-4 w-4" />
+                              <ChevronDown className="h-4 w-4 text-srm-600" />
                             )}
                           </Button>
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-srm-700">
                           {order.order_id ? order.order_id.slice(0, 8) + "..." : "N/A"}
                         </TableCell>
                         <TableCell>{order.customer_name || "Unknown"}</TableCell>
@@ -264,18 +293,18 @@ export default function SellerDashboard() {
                       </TableRow>
                       {expandedOrder === order.order_id && (
                         <TableRow>
-                          <TableCell colSpan={7} className="bg-muted/30 p-0">
+                          <TableCell colSpan={7} className="bg-srm-50/30 p-0">
                             <div className="p-4">
                               {loadingDetails ? (
                                 <div className="flex justify-center p-4">
-                                  <RefreshCw className="animate-spin h-6 w-6 text-primary" />
+                                  <RefreshCw className="animate-spin h-6 w-6 text-srm-500" />
                                 </div>
                               ) : orderDetails?.items && orderDetails.items.length > 0 ? (
                                 <div className="space-y-4">
-                                  <h4 className="font-medium">Order Items</h4>
+                                  <h4 className="font-medium text-srm-700">Order Items</h4>
                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {orderDetails.items.map((item) => (
-                                      <div key={item.id} className="flex items-center space-x-3 p-3 border rounded-md bg-white">
+                                      <div key={item.id} className="flex items-center space-x-3 p-3 border border-srm-100 rounded-md bg-white">
                                         {item.product.image_url && (
                                           <img
                                             src={item.product.image_url}
@@ -284,7 +313,7 @@ export default function SellerDashboard() {
                                           />
                                         )}
                                         <div>
-                                          <p className="font-medium">{item.product.name}</p>
+                                          <p className="font-medium text-srm-700">{item.product.name}</p>
                                           <div className="text-sm text-muted-foreground">
                                             {item.quantity} × ${item.price_per_unit.toFixed(2)}
                                           </div>

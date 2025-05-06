@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,21 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// New blue theme colors
+				srm: {
+					DEFAULT: '#0EA5E9', // Ocean Blue
+					50: '#D3E4FD',  // Soft Blue
+					100: '#B3D0FC',
+					200: '#82B6FA',
+					300: '#5196F8',
+					400: '#1E70EB',
+					500: '#0EA5E9', // Ocean Blue - our primary
+					600: '#1273C7',
+					700: '#0E5AA1',
+					800: '#0A4677',
+					900: '#06304E',
+					foreground: '#FFFFFF' // White text on blue
 				}
 			},
 			borderRadius: {

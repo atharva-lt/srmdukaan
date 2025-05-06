@@ -29,20 +29,22 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <Navbar />
-              <main>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/product/:id" element={<ProductDetail />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/thankyou/:orderId" element={<ThankYou />} />
-                  <Route path="/account" element={<Account />} />
-                  <Route path="/seller" element={<SellerDashboard />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
+              <div className="min-h-screen flex flex-col bg-slate-50">
+                <Navbar />
+                <main className="flex-1">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/product/:id" element={<ProductDetail />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/thankyou/:orderId" element={<ThankYou />} />
+                    <Route path="/account" element={<Account />} />
+                    <Route path="/seller" element={<SellerDashboard />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+              </div>
             </BrowserRouter>
           </CartProvider>
         </RoleProvider>
