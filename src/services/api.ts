@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Product, Customer, Order, OrderItem, CartItem } from "@/types";
 import { toast } from "@/components/ui/use-toast";
@@ -220,6 +219,28 @@ export async function searchProducts(query: string, category?: string) {
     toast({
       title: "Error",
       description: "Failed to search products",
+      variant: "destructive",
+    });
+    return [];
+  }
+}
+
+// Customer related functions
+export async function fetchAllCustomers() {
+  try {
+    const { data, error } = await supabase
+      .from("customer")
+      .select("*")
+      .order("name", { ascending: true });
+    
+    if (error) throw error;
+    
+    return data as Customer[];
+  } catch (error) {
+    console.error("Error fetching customers:", error);
+    toast({
+      title: "Error",
+      description: "Failed to fetch customer data",
       variant: "destructive",
     });
     return [];

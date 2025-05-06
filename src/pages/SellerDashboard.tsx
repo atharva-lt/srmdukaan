@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useCustomer } from "@/context/CustomerContext";
 import { useRole } from "@/context/RoleContext";
 import { useNavigate, Link } from "react-router-dom";
-import { fetchAllOrders, updateOrderStatus, fetchOrderDetails } from "@/services/api";
-import { OrderSummary, OrderWithItems, Product } from "@/types";
+import { fetchAllOrders, updateOrderStatus, fetchOrderDetails, fetchAllCustomers } from "@/services/api";
+import { OrderSummary, OrderWithItems, Product, Customer } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
 import { formatDate } from "@/lib/utils";
-import { Check, X, RefreshCw, ChevronDown, ChevronUp, Package, Store as StoreIcon } from "lucide-react";
+import { Check, X, RefreshCw, ChevronDown, ChevronUp, Package, Store as StoreIcon, Users } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -24,6 +24,11 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
+import {
+  Avatar,
+  AvatarFallback,
+} from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Define a helper interface to ensure proper typing for order details
 interface OrderItemWithProduct {
@@ -48,6 +53,8 @@ export default function SellerDashboard() {
   const [loading, setLoading] = useState(true);
   const [processingOrder, setProcessingOrder] = useState<string | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -61,6 +68,7 @@ export default function SellerDashboard() {
     }
 
     loadOrders();
+    loadCustomers();
   }, [isAuthenticated, navigate, userRole]);
 
   const loadOrders = async () => {
@@ -77,6 +85,23 @@ export default function SellerDashboard() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCustomers = async () => {
+    try {
+      setLoadingCustomers(true);
+      const data = await fetchAllCustomers();
+      setCustomers(data || []);
+    } catch (error) {
+      console.error("Error loading customers:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load customers",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingCustomers(false);
     }
   };
 
@@ -140,6 +165,15 @@ export default function SellerDashboard() {
     }
   };
 
+  const getInitials = (name: string): string => {
+    return name
+      .split(' ')
+      .map(part => part.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <div className="container p-8 mx-auto">
       <Card className="mb-6 border-srm-100">
@@ -190,6 +224,79 @@ export default function SellerDashboard() {
           </CardFooter>
         </Card>
       </div>
+
+      {/* Customers Section */}
+      <Card className="border-srm-100 mb-6" id="customers-section">
+        <CardHeader className="pb-3 bg-srm-50">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl font-semibold text-srm-700 flex items-center gap-2">
+              <Users className="h-5 w-5 text-srm-500" />
+              Customers
+            </CardTitle>
+            <Button 
+              variant="outline" 
+              onClick={loadCustomers} 
+              disabled={loadingCustomers}
+              className="flex items-center gap-2 border-srm-200 text-srm-600"
+            >
+              <RefreshCw className={`w-4 h-4 ${loadingCustomers ? "animate-spin" : ""}`} />
+              {loadingCustomers ? "Loading..." : "Refresh"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-lg border border-srm-100">
+            <ScrollArea className="h-[300px]">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-srm-50">
+                    <TableHead className="w-12"></TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Contact Number</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loadingCustomers ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8">
+                        <div className="flex items-center justify-center gap-2">
+                          <RefreshCw className="w-5 h-5 animate-spin text-srm-500" />
+                          <span>Loading customers...</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : customers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-8">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <Users className="w-8 h-8 text-muted-foreground" />
+                          <span>No customers found</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    customers.map((customer) => (
+                      <TableRow key={customer.id} className="hover:bg-srm-50/50">
+                        <TableCell>
+                          <Avatar className="h-8 w-8 bg-srm-100">
+                            <AvatarFallback className="text-srm-700 text-xs">
+                              {getInitials(customer.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                        </TableCell>
+                        <TableCell className="font-medium">{customer.name}</TableCell>
+                        <TableCell>{customer.email || "—"}</TableCell>
+                        <TableCell>{customer.contact_number || "—"}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </div>
+        </CardContent>
+      </Card>
       
       <Card className="border-srm-100" id="orders-section">
         <CardHeader className="pb-3 bg-srm-50">
