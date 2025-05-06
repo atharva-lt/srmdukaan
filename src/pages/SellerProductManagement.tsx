@@ -176,8 +176,17 @@ export default function SellerProductManagement() {
           setIsEditDialogOpen(false);
         }
       } else {
-        // Create new product
-        const created = await createProduct(values);
+        // Create new product - ensure all required fields are present
+        const productData: Omit<Product, 'id'> = {
+          name: values.name, // Name is required
+          description: values.description || null,
+          price: values.price, // Price is required
+          image_url: values.image_url || null,
+          category: values.category || null,
+          inventory_count: values.inventory_count || 0,
+        };
+        
+        const created = await createProduct(productData);
         if (created) {
           setProducts([...products, created]);
           setIsAddDialogOpen(false);

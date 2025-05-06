@@ -76,6 +76,16 @@ export async function fetchProductsByCategory(category: string) {
 // New Product Management Functions
 export async function createProduct(product: Omit<Product, 'id'>) {
   try {
+    // Make sure all required fields are present before inserting
+    if (!product.name || product.price === undefined) {
+      toast({
+        title: "Validation Error",
+        description: "Product name and price are required",
+        variant: "destructive",
+      });
+      return null;
+    }
+    
     const { data, error } = await supabase
       .from("product")
       .insert([product])
