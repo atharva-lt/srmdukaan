@@ -1,4 +1,3 @@
-
 export type Product = {
   id: string;
   name: string;
@@ -58,12 +57,15 @@ export type Shipment = {
 export type OrderSummary = {
   order_id: string | null;
   customer_name: string | null;
+  customer_email: string | null;
   order_date: string | null;
-  order_status: string | null;
+  status: string | null;
+  order_status?: string | null; // Making this optional since it's not in the DB
+  payment_status?: string | null; // Making this optional since it's not in the DB
   total_amount: number | null;
-  payment_status: string | null;
   shipment_status: string | null;
   tracking_number: string | null;
+  shipping_address?: string | null;
 };
 
 export type UserRole = "consumer" | "seller";

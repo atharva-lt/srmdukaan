@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
 import { formatDate } from "@/lib/utils";
-import { Check, X, RefreshCw, ChevronDown, ChevronUp, Package } from "lucide-react";
+import { Check, X, RefreshCw, ChevronDown, ChevronUp, Package, Store } from "lucide-react";
 import {
   Card,
   CardContent,

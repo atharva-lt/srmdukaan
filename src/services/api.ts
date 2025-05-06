@@ -166,7 +166,14 @@ export async function fetchCustomerOrders(customerId: string) {
       throw error;
     }
 
-    return data;
+    // Map the order summary data to match our expected types
+    const orderSummaries = data.map((order) => ({
+      ...order,
+      order_status: order.status, // Map the status field to order_status
+      payment_status: null // Default value for payment_status
+    }));
+
+    return orderSummaries;
   } catch (error) {
     console.error(`Error fetching orders for customer ${customerId}:`, error);
     toast({
@@ -255,7 +262,14 @@ export async function fetchAllOrders() {
     
     if (error) throw error;
     
-    return data;
+    // Map the order summary data to match our expected types
+    const orderSummaries = data.map((order) => ({
+      ...order,
+      order_status: order.status, // Map the status field to order_status
+      payment_status: null // Default value for payment_status
+    }));
+    
+    return orderSummaries;
   } catch (error) {
     console.error("Error fetching orders:", error);
     toast({
@@ -296,8 +310,15 @@ export async function fetchOrderDetails(orderId: string) {
       
     if (summaryError) throw summaryError;
     
+    // Map the order summary to match our expected types
+    const mappedSummary = orderSummary ? {
+      ...orderSummary,
+      order_status: orderSummary.status,
+      payment_status: null
+    } : null;
+    
     return {
-      summary: orderSummary,
+      summary: mappedSummary,
       items: orderItems,
     };
   } catch (error) {

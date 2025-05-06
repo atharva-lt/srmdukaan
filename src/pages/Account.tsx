@@ -34,7 +34,15 @@ export default function Account() {
           .order("order_date", { ascending: false });
 
         if (error) throw error;
-        setOrders(data || []);
+        
+        // Map the order summary data to match our expected types
+        const orderSummaries = data.map((order) => ({
+          ...order,
+          order_status: order.status,
+          payment_status: null
+        })) as OrderSummary[];
+        
+        setOrders(orderSummaries || []);
       } catch (error) {
         console.error("Error fetching orders:", error);
       } finally {
