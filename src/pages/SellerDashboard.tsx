@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useCustomer } from "@/context/CustomerContext";
 import { useRole } from "@/context/RoleContext";
@@ -244,7 +245,7 @@ export default function SellerDashboard() {
         <CardHeader className="bg-gradient-to-r from-srm-600 to-srm-400 text-white">
           <CardTitle className="text-3xl font-bold flex items-center gap-2">
             <StoreIcon className="w-6 h-6" />
-            Seller Dashboard
+            NewNormal Dashboard
           </CardTitle>
           <CardDescription className="text-white/80">
             Manage customer orders and inventory
