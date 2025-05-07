@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Badge } from "@/components/ui/badge";
+import { Truck } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -30,6 +31,9 @@ export default function ProductCard({ product }: ProductCardProps) {
     
     return categoryImageMap[product.category || ""] || "https://images.unsplash.com/photo-1560343090-f0409e92791a";
   };
+
+  // Mock free shipping for products over $50
+  const hasFreeShipping = product.price >= 50;
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg border border-gray-200">
@@ -66,6 +70,13 @@ export default function ProductCard({ product }: ProductCardProps) {
             <span className="text-xs text-red-500">Out of stock</span>
           )}
         </div>
+        
+        {hasFreeShipping && (
+          <div className="mt-2 flex items-center text-xs text-green-600">
+            <Truck className="h-3 w-3 mr-1" />
+            <span>Free Shipping</span>
+          </div>
+        )}
       </CardContent>
       
       <CardFooter className="p-4 pt-0">
