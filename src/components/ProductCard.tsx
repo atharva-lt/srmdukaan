@@ -14,13 +14,29 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
+  
+  // Get a category-specific placeholder if no image is provided
+  const getProductImage = () => {
+    if (product.image_url) return product.image_url;
+    
+    const categoryImageMap: Record<string, string> = {
+      "Electronics": "https://images.unsplash.com/photo-1498049794561-7780e7231661",
+      "Clothing": "https://images.unsplash.com/photo-1562157873-818bc0726f68",
+      "Home & Kitchen": "https://images.unsplash.com/photo-1556911220-bff31c812dba",
+      "Books": "https://images.unsplash.com/photo-1512820790803-83ca734da794",
+      "Sports": "https://images.unsplash.com/photo-1461896836934-ffe607ba8211",
+      "Beauty": "https://images.unsplash.com/photo-1596462502278-27bfdc403348"
+    };
+    
+    return categoryImageMap[product.category || ""] || "https://images.unsplash.com/photo-1560343090-f0409e92791a";
+  };
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg border border-gray-200">
       <Link to={`/product/${product.id}`} className="block overflow-hidden">
         <AspectRatio ratio={4/3}>
           <img
-            src={product.image_url || "/placeholder.svg"}
+            src={getProductImage()}
             alt={product.name}
             className="object-cover w-full h-full transition-transform hover:scale-105"
           />

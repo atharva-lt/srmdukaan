@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -71,6 +70,55 @@ export default function ProductDetail() {
     );
   }
 
+  // Sample related product images based on categories
+  const getRelatedProductImage = (index: number) => {
+    const categoryImageMap: Record<string, string[]> = {
+      "Electronics": [
+        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853",
+        "https://images.unsplash.com/photo-1585792180666-f7347c490ee2",
+        "https://images.unsplash.com/photo-1546054454-aa26e2b734c7",
+        "https://images.unsplash.com/photo-1498049794561-7780e7231661"
+      ],
+      "Clothing": [
+        "https://images.unsplash.com/photo-1562157873-818bc0726f68",
+        "https://images.unsplash.com/photo-1582552938357-32b906df40cb",
+        "https://images.unsplash.com/photo-1434389677669-e08b4cac3105",
+        "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f"
+      ],
+      "Home & Kitchen": [
+        "https://images.unsplash.com/photo-1584346133934-a3044a90bc56",
+        "https://images.unsplash.com/photo-1600585152220-90363fe7e115",
+        "https://images.unsplash.com/photo-1556911220-bff31c812dba",
+        "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92"
+      ]
+    };
+    
+    // Default images if category doesn't match
+    const defaultImages = [
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+      "https://images.unsplash.com/photo-1581235720704-06d3acfcb36f",
+      "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+      "https://images.unsplash.com/photo-1560343090-f0409e92791a"
+    ];
+    
+    const category = product?.category || "";
+    const images = categoryImageMap[category] || defaultImages;
+    return images[index % images.length];
+  };
+
+  // Get placeholder image based on product category
+  const getProductImage = () => {
+    if (product.image_url) return product.image_url;
+    
+    const categoryImageMap: Record<string, string> = {
+      "Electronics": "https://images.unsplash.com/photo-1498049794561-7780e7231661",
+      "Clothing": "https://images.unsplash.com/photo-1562157873-818bc0726f68",
+      "Home & Kitchen": "https://images.unsplash.com/photo-1556911220-bff31c812dba"
+    };
+    
+    return categoryImageMap[product.category || ""] || "https://images.unsplash.com/photo-1560343090-f0409e92791a";
+  };
+
   return (
     <div className="container p-8 mx-auto">
       {/* Breadcrumbs */}
@@ -99,7 +147,7 @@ export default function ProductDetail() {
           <div className="overflow-hidden rounded-lg border border-gray-200">
             <AspectRatio ratio={4/3}>
               <img
-                src={product.image_url || "/placeholder.svg"}
+                src={getProductImage()}
                 alt={product.name}
                 className="object-cover w-full h-full"
               />
@@ -276,7 +324,11 @@ export default function ProductDetail() {
           {[...Array(4)].map((_, i) => (
             <Link key={i} to="/" className="group">
               <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-2">
-                <div className="w-full h-full bg-gray-200"></div>
+                <img 
+                  src={getRelatedProductImage(i)} 
+                  alt={`Related Product ${i + 1}`}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
               </div>
               <h3 className="font-medium group-hover:text-primary transition-colors">
                 Related Product {i + 1}
