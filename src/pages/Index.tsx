@@ -59,7 +59,7 @@ export default function Index() {
         />
         <div className="absolute inset-0 flex flex-col justify-center z-20 p-8">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Welcome to QuickOrderVerse
+            Welcome to NewNormal
           </h1>
           <p className="text-xl text-white/90 max-w-2xl">
             Discover amazing products at amazing prices

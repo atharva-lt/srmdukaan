@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ShoppingCart, User, LogOut, Store, Menu, Search } from "lucide-react";
@@ -84,7 +83,7 @@ export default function Navbar() {
               <SheetContent side="left">
                 <div className="flex flex-col h-full">
                   <Link to="/" className="text-xl font-bold text-srm-600 py-4">
-                    SRMdukaan
+                    NewNormal
                   </Link>
                   <nav className="flex flex-col space-y-4 py-8">
                     <Link to="/" className="hover:text-srm-500 transition-colors">
@@ -124,7 +123,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link to="/" className="text-2xl font-bold text-srm-500 transition-transform hover:scale-105">
-            SRMdukaan
+            NewNormal
           </Link>
 
           {/* Search bar - desktop */}
